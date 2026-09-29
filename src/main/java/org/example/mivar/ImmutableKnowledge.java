@@ -10,18 +10,19 @@ public final class ImmutableKnowledge implements Knowledge {
     private final Set<String> variables;
     private final Map<String, Object> values;
 
+    public ImmutableKnowledge(final Set<String> variables) {
+        this(variables, Map.of());
+    }
+
+    public ImmutableKnowledge(final Map<String, Object> values) {
+        this(values.keySet(), values);
+    }
+
     private ImmutableKnowledge(final Set<String> variables, final Map<String, Object> values) {
         this.variables = Set.copyOf(variables);
         this.values = Map.copyOf(values);
     }
 
-    public static Knowledge of(final Set<String> variables) {
-        return new ImmutableKnowledge(variables, Map.of());
-    }
-
-    public static Knowledge of(final Map<String, Object> values) {
-        return new ImmutableKnowledge(values.keySet(), values);
-    }
 
     public Set<String> variables() {
         return this.variables;

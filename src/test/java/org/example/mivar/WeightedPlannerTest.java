@@ -17,7 +17,7 @@ final class WeightedPlannerTest {
         final Rule first = new BasicRule("first", List.of("a"), List.of("x"), 2);
         final Rule second = new BasicRule("second", List.of("x"), List.of("target"), 3);
         final Plan plan = planner(List.of(direct, first, second), new UnitCost()).find(
-            ImmutableKnowledge.of(Set.of("a")), Set.of("target"), List.of(direct, first, second),
+            new ImmutableKnowledge(Set.of("a")), Set.of("target"), List.of(direct, first, second),
             new UnitCost(), new ZeroHeuristic());
         assertTrue(plan.reached());
         assertEquals(List.of("direct"), names(plan));
@@ -31,7 +31,7 @@ final class WeightedPlannerTest {
         final Rule second = new BasicRule("cheap2", List.of("x"), List.of("target"), 3);
         final CostModel costs = (rule, state) -> rule.name().equals("expensive") ? 10L : 2L;
         final Plan plan = planner(List.of(expensive, first, second), costs).find(
-            ImmutableKnowledge.of(Set.of("a")), Set.of("target"), List.of(expensive, first, second),
+            new ImmutableKnowledge(Set.of("a")), Set.of("target"), List.of(expensive, first, second),
             costs, new ZeroHeuristic());
         assertEquals(List.of("cheap1", "cheap2"), names(plan));
         assertEquals(4L, plan.cost());
@@ -41,7 +41,7 @@ final class WeightedPlannerTest {
     void supportsSeveralOutputsFromOneRule() {
         final Rule rule = new BasicRule("split", List.of("a"), List.of("x", "y"), 1);
         final Plan plan = planner(List.of(rule), new UnitCost()).find(
-            ImmutableKnowledge.of(Set.of("a")), Set.of("x", "y"), List.of(rule),
+            new ImmutableKnowledge(Set.of("a")), Set.of("x", "y"), List.of(rule),
             new UnitCost(), new ZeroHeuristic());
         assertTrue(plan.reached());
         assertTrue(plan.known().containsAll(Set.of("x", "y")));
@@ -51,7 +51,7 @@ final class WeightedPlannerTest {
     void requiresAllInputs() {
         final Rule rule = new BasicRule("join", List.of("a", "b"), List.of("x"), 1);
         final Plan plan = planner(List.of(rule), new UnitCost()).find(
-            ImmutableKnowledge.of(Set.of("a")), Set.of("x"), List.of(rule),
+            new ImmutableKnowledge(Set.of("a")), Set.of("x"), List.of(rule),
             new UnitCost(), new ZeroHeuristic());
         assertFalse(plan.reached());
     }
@@ -60,7 +60,7 @@ final class WeightedPlannerTest {
     void handlesRuleWithoutInputs() {
         final Rule rule = new BasicRule("constant", List.of(), List.of("x"), 1);
         final Plan plan = planner(List.of(rule), new UnitCost()).find(
-            ImmutableKnowledge.of(Set.of()), Set.of("x"), List.of(rule),
+            new ImmutableKnowledge(Set.of()), Set.of("x"), List.of(rule),
             new UnitCost(), new ZeroHeuristic());
         assertTrue(plan.reached());
     }
@@ -69,20 +69,20 @@ final class WeightedPlannerTest {
     void reverseDistanceIsZeroForKnownTarget() {
         final Rule rule = new BasicRule("make", List.of("a"), List.of("x"), 1);
         final ReverseDistance heuristic = new ReverseDistance(List.of(rule), new UnitCost());
-        assertEquals(0L, heuristic.estimate(ImmutableKnowledge.of(Set.of("x")), Set.of("x")));
+        assertEquals(0L, heuristic.estimate(new ImmutableKnowledge(Set.of("x")), Set.of("x")));
     }
 
     @Test
     void reverseDistanceIsPositiveForUnknownTarget() {
         final Rule rule = new BasicRule("make", List.of("a"), List.of("x"), 1);
         final ReverseDistance heuristic = new ReverseDistance(List.of(rule), new UnitCost());
-        assertTrue(heuristic.estimate(ImmutableKnowledge.of(Set.of("a")), Set.of("x")) > 0L);
+        assertTrue(heuristic.estimate(new ImmutableKnowledge(Set.of("a")), Set.of("x")) > 0L);
     }
 
     @Test
     void returnsUnreachablePlan() {
         final Plan plan = planner(List.of(), new UnitCost()).find(
-            ImmutableKnowledge.of(Set.of("a")), Set.of("x"), List.of(),
+            new ImmutableKnowledge(Set.of("a")), Set.of("x"), List.of(),
             new UnitCost(), new ZeroHeuristic());
         assertFalse(plan.reached());
         assertEquals(Long.MAX_VALUE, plan.cost());
@@ -93,7 +93,7 @@ final class WeightedPlannerTest {
         final Rule rule = new BasicRule("calculate", List.of("a"), List.of("x"),
             new Expr.Literal(true), Map.of("x", new Expr.Binary("+", new Expr.Reference("a"), new Expr.Literal(2))), 1);
         final Plan plan = planner(List.of(rule), new UnitCost()).find(
-            ImmutableKnowledge.of(Map.of("a", 3.0)), Set.of("x"), List.of(rule),
+            new ImmutableKnowledge(Map.of("a", 3.0)), Set.of("x"), List.of(rule),
             new UnitCost(), new ZeroHeuristic());
         assertTrue(plan.reached());
     }

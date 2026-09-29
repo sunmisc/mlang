@@ -34,7 +34,7 @@ public final class ReverseDistance implements Heuristic {
                 for (final String variable : rule.inputs()) {
                     input = Math.max(input, result.getOrDefault(variable, 0L));
                 }
-                final long value = input + costs.cost(rule, ImmutableKnowledge.of(Set.of()));
+                final long value = input + costs.cost(rule, new ImmutableKnowledge(Set.of()));
                 for (final String output : rule.outputs()) {
                     if (value < result.getOrDefault(output, Long.MAX_VALUE)) {
                         result.put(output, value);

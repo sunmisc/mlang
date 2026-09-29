@@ -31,7 +31,7 @@ public final class Main {
         final Set<String> initial = new LinkedHashSet<>(variables(args[1]));
         initial.addAll(initialValues.keySet());
         final Set<String> targets = variables(args[2]);
-        final Knowledge knowledge = ImmutableKnowledge.of(initialValues).add(initial, Map.of());
+        final Knowledge knowledge = new ImmutableKnowledge(initialValues).add(initial, Map.of());
         final Plan plan = new PlanningAgent("main", program.rules()).solve(knowledge, targets);
         System.out.println("Reached: " + plan.reached());
         System.out.println("Known: " + plan.known());

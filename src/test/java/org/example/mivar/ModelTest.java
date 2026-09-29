@@ -19,7 +19,7 @@ final class ModelTest {
 
     @Test
     void knowledgeIsImmutable() {
-        final Knowledge first = ImmutableKnowledge.of(Set.of("a"));
+        final Knowledge first = new ImmutableKnowledge(Set.of("a"));
         final Knowledge second = first.add(Set.of("b"), Map.of("b", 2));
         assertTrue(first.knows("a"));
         assertTrue(!first.knows("b"));

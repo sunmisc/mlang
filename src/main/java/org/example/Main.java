@@ -25,7 +25,8 @@ public final class Main {
         if (args.length < 3) {
             throw new IllegalArgumentException("Usage: mivar <file.mivar> <known1,known2> <target1,target2>");
         }
-        final Program program = new Parser().parse(Files.readString(Path.of(args[0])));
+        final Program program = new Parser(new org.example.mivar.ExpressionParser())
+            .parse(Files.readString(Path.of(args[0])));
         final Engine engine = new Engine();
         final Map<String, Object> initialValues = engine.attributes(program, Map.of());
         final Set<String> initial = new LinkedHashSet<>(variables(args[1]));

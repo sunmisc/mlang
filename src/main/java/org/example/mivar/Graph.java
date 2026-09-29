@@ -9,13 +9,8 @@ import java.util.Set;
 public final class Graph {
     private final Program program;
 
-    private Graph(final Program program) {
+    public Graph(final Program program) {
         this.program = program;
-    }
-
-    /** Build a variable/rule graph view. */
-    public static Graph from(final Program program) {
-        return new Graph(program);
     }
 
     /** Return variables reachable through rules, ignoring activation requirements. */

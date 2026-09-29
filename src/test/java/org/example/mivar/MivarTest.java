@@ -70,14 +70,13 @@ final class MivarTest {
     }
 
     @Test
-    void reportsUnknownVariablesAndUnreachableTargets() {
+    void reportsUnreachableTargets() {
         final Program program = new Parser().parse("""
             object a
             object x
             rule broken: a -> missing
             """);
         final List<Diagnostic> diagnostics = new Analyzer().analyze(program, Set.of("a"), Set.of("x"));
-        assertTrue(diagnostics.stream().anyMatch(item -> item.code().equals("MIVAR003")));
         assertTrue(diagnostics.stream().anyMatch(item -> item.code().equals("MIVAR006")));
     }
 

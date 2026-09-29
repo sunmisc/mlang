@@ -52,4 +52,23 @@ final class ModelTest {
         assertEquals("ok", rule.name());
         assertEquals(List.of("a"), rule.inputs());
     }
+
+    @Test
+    void planExplainsAndFindsRules() {
+        final Rule first = new BasicRule("first", List.of("a"), List.of("b"), 1);
+        final Plan plan = new Plan(true, Set.of("a", "b"), List.of(first), 3L);
+        assertEquals(1, plan.activations());
+        assertEquals("first", plan.explain());
+        assertTrue(plan.reaches(Set.of("b")));
+        assertEquals(first, plan.rule("first").orElseThrow());
+    }
+
+    @Test
+    void programFindsRulesAndBuildsAgent() {
+        final Rule rule = new BasicRule("r", List.of("a"), List.of("b"), 1);
+        final Program program = new Program(List.of("a", "b"), List.of(rule));
+        assertEquals(rule, program.rule("r").orElseThrow());
+        assertTrue(program.variables().contains("a"));
+        assertEquals("agent", program.agent("agent").name());
+    }
 }

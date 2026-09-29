@@ -33,7 +33,7 @@ public final class WeightedPlanner {
             if (known.containsAll(targets)) {
                 return new Plan(true, known, restore(known, start, previous), entry.cost());
             }
-            final Knowledge state = ImmutableKnowledge.of(values.get(known)).add(known, Map.of());
+            final Knowledge state = new ImmutableKnowledge(values.get(known)).add(known, Map.of());
             for (final Rule rule : candidates(known, index)) {
                 if (!applicable(rule, state)) {
                     continue;
@@ -53,7 +53,7 @@ public final class WeightedPlanner {
                     best.put(frozen, nextCost);
                     values.put(frozen, Map.copyOf(nextValues));
                     previous.put(frozen, new Step(known, rule));
-                    final Knowledge nextKnowledge = ImmutableKnowledge.of(nextValues).add(frozen, Map.of());
+                    final Knowledge nextKnowledge = new ImmutableKnowledge(nextValues).add(frozen, Map.of());
                     queue.add(new Entry(frozen, nextCost, nextCost + heuristic.estimate(nextKnowledge, targets)));
                 }
             }

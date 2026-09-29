@@ -41,11 +41,12 @@ public final class Parser {
                         ++index;
                     }
                 } else if (rule.matches()) {
-                    rules.add(new Rule(rule.group(1), vars(rule.group(2), line), vars(rule.group(3), line), line));
+                    rules.add(new CheckedRule(new BasicRule(rule.group(1), vars(rule.group(2), line),
+                        vars(rule.group(3), line), line)));
                     ++index;
                 } else if (block.matches()) {
                     final Block parsed = parseRule(lines, index + 1, line, block.group(1));
-                    rules.add(parsed.rule());
+                    rules.add(new CheckedRule(parsed.rule()));
                     parsed.rule().outputs().forEach(output -> addName(names, variables, output, line));
                     ++index;
                     index = parsed.next();
@@ -83,7 +84,7 @@ public final class Parser {
         while (index < lines.length) {
             final String text = clean(lines[index]);
             if (text.equals("}")) {
-                return new Block(new Rule(name, Rule.dependencies(condition, emissions),
+                return new Block(new BasicRule(name, BasicRule.dependencies(condition, emissions),
                     List.copyOf(emissions.keySet()), condition, emissions, start), index + 1);
             }
             if (text.startsWith("when ")) {

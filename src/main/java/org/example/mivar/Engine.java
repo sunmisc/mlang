@@ -22,8 +22,10 @@ public final class Engine {
     /** Evaluate object attributes before planning. */
     public Map<String, Object> attributes(final Program program, final Map<String, Object> initial) {
         final Map<String, Object> values = new LinkedHashMap<>(initial);
-        for (final Map.Entry<String, Expr> attribute : program.attributes().entrySet()) {
-            values.put(attribute.getKey(), attribute.getValue().eval(values));
+        for (final MivarObject object : new ObjectCatalog().from(program)) {
+            for (final Map.Entry<String, Expr> attribute : object.attributes().entrySet()) {
+                values.put(attribute.getKey(), attribute.getValue().eval(values));
+            }
         }
         return Map.copyOf(values);
     }

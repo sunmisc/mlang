@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 /** Expression AST with arithmetic and boolean operations. */
-public sealed interface Expr permits Expr.Literal, Expr.Reference, Expr.Unary, Expr.Binary {
+public interface Expr {
     Object eval(Map<String, Object> values);
 
     Set<String> references();

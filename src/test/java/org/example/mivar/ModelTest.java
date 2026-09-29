@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Map;
 import java.util.List;
 import java.util.Set;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 /** Unit tests for the object, knowledge and decorator contracts. */
@@ -25,6 +26,8 @@ final class ModelTest {
         assertTrue(!first.knows("b"));
         assertTrue(second.knows("b"));
         assertEquals(2, second.values().get("b"));
+        assertEquals(Optional.of(2), second.value("b"));
+        assertTrue(second.value("missing").isEmpty());
     }
 
     @Test

@@ -11,10 +11,15 @@ import java.util.regex.Pattern;
 
 /** Parser for compact rules and object-oriented MIVAR blocks. */
 public final class Parser {
+    private final ExpressionParser expressions;
     private static final Pattern OBJECT = Pattern.compile("object\\s+([A-Za-z][A-Za-z0-9_]*)(?:\\s*\\{)?");
     private static final Pattern RULE = Pattern.compile("rule\\s+([A-Za-z][A-Za-z0-9_]*)\\s*:\\s*([^->]+?)\\s*->\\s*(.+)");
     private static final Pattern BLOCK_RULE = Pattern.compile("rule\\s+([A-Za-z][A-Za-z0-9_]*)\\s*\\{");
     private static final Pattern AGENT = Pattern.compile("agent\\s+([A-Za-z][A-Za-z0-9_]*)\\s*\\{");
+
+    public Parser(final ExpressionParser expressions) {
+        this.expressions = expressions;
+    }
 
     /** Parse source. */
     public Program parse(final String source) {
@@ -65,7 +70,7 @@ public final class Parser {
         return new Program(variables, rules, attributes);
     }
 
-    private static int parseObject(final String[] lines, int index, final String object,
+    private int parseObject(final String[] lines, int index, final String object,
         final Map<String, Expr> attributes, final Set<String> names, final List<String> variables) {
         while (index < lines.length) {
             final int line = index + 1;
@@ -79,13 +84,13 @@ public final class Parser {
             }
             final String name = object + "." + assignment[0].trim();
             addName(names, variables, name, line);
-            attributes.put(name, new ExpressionParser().parse(assignment[1].trim()));
+            attributes.put(name, this.expressions.parse(assignment[1].trim()));
             ++index;
         }
         throw new IllegalArgumentException("object " + object + " is not closed");
     }
 
-    private static Block parseRule(final String[] lines, int index, final int start, final String name) {
+    private Block parseRule(final String[] lines, int index, final int start, final String name) {
         Expr condition = new Expr.Literal(true);
         final Map<String, Expr> emissions = new LinkedHashMap<>();
         while (index < lines.length) {
@@ -95,13 +100,13 @@ public final class Parser {
                     List.copyOf(emissions.keySet()), condition, emissions, start), index + 1);
             }
             if (text.startsWith("when ")) {
-                condition = new ExpressionParser().parse(text.substring(5).trim());
+                condition = this.expressions.parse(text.substring(5).trim());
             } else if (text.startsWith("emit ")) {
                 final String[] assignment = text.substring(5).split("=", 2);
                 if (assignment.length != 2) {
                     throw new IllegalArgumentException("line " + (index + 1) + ": expected emit name = expression");
                 }
-                emissions.put(assignment[0].trim(), new ExpressionParser().parse(assignment[1].trim()));
+                emissions.put(assignment[0].trim(), this.expressions.parse(assignment[1].trim()));
             } else {
                 throw new IllegalArgumentException("line " + (index + 1) + ": expected when, emit or }");
             }

@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 final class MivarTest {
     @Test
     void findsMinimumPlanWithMultipleInputsAndOutputs() {
-        final Program program = new Parser().parse("""
+        final Program program = new Parser(new ExpressionParser()).parse("""
             object a
             object b
             object c
@@ -33,7 +33,7 @@ final class MivarTest {
 
     @Test
     void doesNotActivateRuleUntilAllInputsAreKnown() {
-        final Program program = new Parser().parse("""
+        final Program program = new Parser(new ExpressionParser()).parse("""
             object a
             object b
             object x
@@ -44,7 +44,7 @@ final class MivarTest {
 
     @Test
     void evaluatesObjectAttributesMathAndLogic() {
-        final Program program = new Parser().parse("""
+        final Program program = new Parser(new ExpressionParser()).parse("""
             object input {
               a = 10
               b = 20
@@ -71,7 +71,7 @@ final class MivarTest {
 
     @Test
     void reportsUnreachableTargets() {
-        final Program program = new Parser().parse("""
+        final Program program = new Parser(new ExpressionParser()).parse("""
             object a
             object x
             rule broken: a -> missing
@@ -82,7 +82,7 @@ final class MivarTest {
 
     @Test
     void rejectsDuplicateObjectsAndMalformedLines() {
-        final Parser parser = new Parser();
+        final Parser parser = new Parser(new ExpressionParser());
         assertThrows(IllegalArgumentException.class, () -> parser.parse("object A\nobject A"));
         assertThrows(IllegalArgumentException.class, () -> parser.parse("unknown A"));
     }

@@ -8,9 +8,11 @@ import java.util.Map;
 import java.util.Set;
 import org.example.mivar.Analyzer;
 import org.example.mivar.Engine;
+import org.example.mivar.ImmutableKnowledge;
+import org.example.mivar.Knowledge;
 import org.example.mivar.Parser;
 import org.example.mivar.Plan;
-import org.example.mivar.Planner;
+import org.example.mivar.PlanningAgent;
 import org.example.mivar.Program;
 
 /** Command line entry point for the MIVAR prototype. */
@@ -29,7 +31,8 @@ public final class Main {
         final Set<String> initial = new LinkedHashSet<>(variables(args[1]));
         initial.addAll(initialValues.keySet());
         final Set<String> targets = variables(args[2]);
-        final Plan plan = new Planner().find(initial, targets, program.rules(), initialValues);
+        final Knowledge knowledge = ImmutableKnowledge.of(initialValues).add(initial, Map.of());
+        final Plan plan = new PlanningAgent("main", program.rules()).solve(knowledge, targets);
         System.out.println("Reached: " + plan.reached());
         System.out.println("Known: " + plan.known());
         System.out.println("Rules: " + plan.rules().stream().map(rule -> rule.name()).toList());

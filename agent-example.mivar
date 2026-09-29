@@ -1,0 +1,5 @@
+# A mivar agent is a set of hyperedge rules over shared knowledge.
+agent calculation {
+  rule sum: a, b -> x, y
+  rule result: x, y -> answer
+}

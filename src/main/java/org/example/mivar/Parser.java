@@ -14,6 +14,7 @@ public final class Parser {
     private static final Pattern OBJECT = Pattern.compile("object\\s+([A-Za-z][A-Za-z0-9_]*)(?:\\s*\\{)?");
     private static final Pattern RULE = Pattern.compile("rule\\s+([A-Za-z][A-Za-z0-9_]*)\\s*:\\s*([^->]+?)\\s*->\\s*(.+)");
     private static final Pattern BLOCK_RULE = Pattern.compile("rule\\s+([A-Za-z][A-Za-z0-9_]*)\\s*\\{");
+    private static final Pattern AGENT = Pattern.compile("agent\\s+([A-Za-z][A-Za-z0-9_]*)\\s*\\{");
 
     /** Parse source. */
     public Program parse(final String source) {
@@ -32,7 +33,9 @@ public final class Parser {
                 final Matcher object = OBJECT.matcher(text);
                 final Matcher rule = RULE.matcher(text);
                 final Matcher block = BLOCK_RULE.matcher(text);
-                if (object.matches()) {
+                if (AGENT.matcher(text).matches() || text.equals("}")) {
+                    ++index;
+                } else if (object.matches()) {
                     final String name = object.group(1);
                     addName(names, variables, name, line);
                     if (text.endsWith("{")) {
@@ -41,13 +44,17 @@ public final class Parser {
                         ++index;
                     }
                 } else if (rule.matches()) {
-                    rules.add(new CheckedRule(new BasicRule(rule.group(1), vars(rule.group(2), line),
-                        vars(rule.group(3), line), line)));
+                    final List<String> inputs = vars(rule.group(2), line);
+                    final List<String> outputs = vars(rule.group(3), line);
+                    rules.add(new CheckedRule(new BasicRule(rule.group(1), inputs, outputs, line)));
+                    inputs.forEach(variable -> addIfMissing(names, variables, variable));
+                    outputs.forEach(variable -> addIfMissing(names, variables, variable));
                     ++index;
                 } else if (block.matches()) {
                     final Block parsed = parseRule(lines, index + 1, line, block.group(1));
                     rules.add(new CheckedRule(parsed.rule()));
-                    parsed.rule().outputs().forEach(output -> addName(names, variables, output, line));
+                    parsed.rule().inputs().forEach(input -> addIfMissing(names, variables, input));
+                    parsed.rule().outputs().forEach(output -> addIfMissing(names, variables, output));
                     ++index;
                     index = parsed.next();
                 } else {
@@ -125,6 +132,12 @@ public final class Parser {
             throw new IllegalArgumentException("line " + line + ": duplicate name " + name);
         }
         variables.add(name);
+    }
+
+    private static void addIfMissing(final Set<String> names, final List<String> variables, final String name) {
+        if (names.add(name)) {
+            variables.add(name);
+        }
     }
 
     private record Block(Rule rule, int next) {

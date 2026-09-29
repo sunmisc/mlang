@@ -12,6 +12,11 @@ import java.util.Set;
 
 /** Finds a plan with the minimum number of activated rules. */
 public final class Planner {
+    /** Plan directly from an immutable knowledge object. */
+    public Plan find(final Knowledge initial, final Set<String> targets, final List<Rule> rules) {
+        return this.find(initial.variables(), targets, rules, initial.values());
+    }
+
     /** Breadth-first search over known-variable states. */
     public Plan find(final Set<String> initial, final Set<String> targets, final List<Rule> rules) {
         return this.find(initial, targets, rules, Map.of());

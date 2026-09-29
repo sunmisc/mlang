@@ -1,0 +1,16 @@
+object input {
+  a = 10
+  b = 20
+  enabled = true
+}
+
+rule sum {
+  when input.enabled
+  emit x = input.a + input.b
+  emit y = x * 2
+}
+
+rule valid {
+  when x > 20 && y == 60
+  emit result = true
+}

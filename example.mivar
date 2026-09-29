@@ -1,0 +1,11 @@
+# Rules require all variables on the left and emit all variables on the right.
+object a
+object b
+object c
+object x
+object y
+object z
+
+rule rule1: a, b, c -> x, y
+rule rule2: a, b -> z
+rule rule3: x, y -> z
